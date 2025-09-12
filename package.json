@@ -1,0 +1,30 @@
+{
+  "name": "softsync",
+  "version": "1.0.0",
+  "description": "AI powered ChatBot which automate the heavy skills software",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgniAditya/SoftSync.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AgniAditya/SoftSync/issues"
+  },
+  "homepage": "https://github.com/AgniAditya/SoftSync#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "axios": "^1.12.1",
+    "electron": "^38.1.0",
+    "electron-vite": "^4.0.0",
+    "typescript": "^5.9.2",
+    "vue": "^3.5.21"
+  }
+}
