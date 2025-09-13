@@ -1,5 +1,5 @@
 import { Client } from "@modelcontextprotocol/sdk/client";
-import { eventBus } from "../eventbus";
+import { eventBus } from "../eventbus.ts";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
 export class McpPresenter {
