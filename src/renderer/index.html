@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoftSync - AI Powered ChatBot</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            padding: 1rem;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .main {
+            flex: 1;
+            display: flex;
+        }
+        .sidebar {
+            width: 400px;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-right: 1px solid #ddd;
+        }
+        .chat-area {
+            flex: 1;
+            padding: 1rem;
+        }
+        
+        .status-indicator.connected {
+            color: green;
+        }
+        .status-indicator.disconnected {
+            color: red;
+        }
+        
+        .openrouter-selector {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+            margin-bottom: 1rem;
+        }
+        
+        .api-key-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+        
+        .model-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+        }
+        
+        .model-item {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .model-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .model-item.active {
+            border-color: #007bff;
+            background-color: #e7f3ff;
+        }
+        
+        .blender-mcp {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .path-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+        
+        .connect-button {
+            padding: 0.5rem 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .connect-button:hover:not(:disabled) {
+            background: #0056b3;
+        }
+        
+        .connect-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .chat-interface {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #ffffff;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        
+        .message.user {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+        
+        .message.assistant {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .message-content {
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .input-container {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        .message-input:disabled {
+            background-color: #e9ecef;
+            opacity: 0.6;
+        }
+        
+        .send-button {
+            padding: 0.75rem 1.5rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .send-button:hover:not(:disabled) {
+            background: #0056b3;
+        }
+        
+        .send-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const openrouterModels = ref([
+                    {
+                        id: 'meta-llama/llama-3.1-8b-instruct:free',
+                        name: 'Llama 3.1 8B (Free)',
+                        description: 'Free Llama model for general use',
+                        contextLength: 131072,
+                        pricing: { prompt: 'Free', completion: 'Free' },
+                        topProvider: { id: 'meta', name: 'Meta' }
+                    },
+                    {
+                        id: 'google/gemini-flash-1.5:free',
+                        name: 'Gemini Flash 1.5 (Free)',
+                        description: 'Google\'s free Gemini model',
+                        contextLength: 1048576,
+                        pricing: { prompt: 'Free', completion: 'Free' },
+                        topProvider: { id: 'google', name: 'Google' }
+                    },
+                    {
+                        id: 'deepseek/deepseek-chat',
+                        name: 'DeepSeek Chat',
+                        description: 'General purpose conversational model',
+                        contextLength: 32768,
+                        pricing: { prompt: '$0.14', completion: '$0.28' },
+                        topProvider: { id: 'deepseek', name: 'DeepSeek' }
+                    }
+                ]);
+                
+                const currentModel = ref('meta-llama/llama-3.1-8b-instruct:free');
+                const apiKey = ref('');
+                const mcpConnected = ref(false);
+                const messages = ref([]);
+                const loading = ref(false);
+                const blenderPath = ref('');
+                const inputMessage = ref('');
+
+                const currentModelName = computed(() => {
+                    const model = openrouterModels.value.find(m => m.id === currentModel.value);
+                    return model ? model.name : currentModel.value;
+                });
+
+                onMounted(() => {
+                    // Listen for events from main process
+                    if (window.electron) {
+                        window.electron.ipcRenderer.on('mcp:blender-connected', (_, connected, error) => {
+                            mcpConnected.value = connected;
+                            if (error) {
+                                console.error('Blender MCP connection error:', error);
+                            }
+                        });
+
+                        window.electron.ipcRenderer.on('llm:model-changed', (_, modelId) => {
+                            currentModel.value = modelId;
+                        });
+
+                        window.electron.ipcRenderer.on('llm:api-key-updated', (_, status) => {
+                            console.log('API Key status:', status);
+                        });
+                    }
+                });
+
+                const handleApiKeyUpdate = async () => {
+                    if (window.electron) {
+                        await window.electron.ipcRenderer.invoke('llm:set-api-key', apiKey.value);
+                    }
+                };
+
+                const handleModelChange = async (modelId) => {
+                    currentModel.value = modelId;
+                    if (window.electron) {
+                        await window.electron.ipcRenderer.invoke('llm:set-model', modelId);
+                    }
+                };
+
+                const handleBlenderConnect = async () => {
+                    if (window.electron && blenderPath.value) {
+                        await window.electron.ipcRenderer.invoke('mcp:connect-blender', blenderPath.value);
+                    }
+                };
+
+                const handleBlenderDisconnect = async () => {
+                    if (window.electron) {
+                        await window.electron.ipcRenderer.invoke('mcp:disconnect-blender');
+                    }
+                };
+
+                const handleSendMessage = async () => {
+                    if (!inputMessage.value.trim() || loading.value) return;
+                    
+                    const message = inputMessage.value.trim();
+                    inputMessage.value = '';
+                    messages.value.push({ role: 'user', content: message, timestamp: new Date() });
+                    loading.value = true;
+
+                    try {
+                        if (window.electron) {
+                            const response = await window.electron.ipcRenderer.invoke('thread:send-message', message);
+                            messages.value.push({ role: 'assistant', content: response, timestamp: new Date() });
+                        } else {
+                            messages.value.push({ role: 'assistant', content: 'Electron IPC not available', timestamp: new Date() });
+                        }
+                    } catch (error) {
+                        messages.value.push({ role: 'assistant', content: `Error: ${error.message}`, timestamp: new Date() });
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const handleKeyDown = (event) => {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                        event.preventDefault();
+                        handleSendMessage();
+                    }
+                };
+
+                return {
+                    openrouterModels,
+                    currentModel,
+                    apiKey,
+                    mcpConnected,
+                    messages,
+                    loading,
+                    blenderPath,
+                    inputMessage,
+                    currentModelName,
+                    handleApiKeyUpdate,
+                    handleModelChange,
+                    handleBlenderConnect,
+                    handleBlenderDisconnect,
+                    handleSendMessage,
+                    handleKeyDown
+                };
+            },
+            template: `
+                <div class="app">
+                    <header class="header">
+                        <h1>DeepChat MVP - OpenRouter</h1>
+                        <div class="status">
+                            <span :class="['status-indicator', mcpConnected ? 'connected' : 'disconnected']">
+                                Blender MCP: {{ mcpConnected ? 'Connected' : 'Disconnected' }}
+                            </span>
+                            <span class="llm-status">
+                                Model: {{ currentModelName || 'None Selected' }}
+                            </span>
+                        </div>
+                    </header>
+
+                    <main class="main">
+                        <div class="sidebar">
+                            <!-- OpenRouter Selector -->
+                            <div class="openrouter-selector">
+                                <h3>OpenRouter Configuration</h3>
+                                
+                                <div>
+                                    <label for="api-key">OpenRouter API Key:</label>
+                                    <input 
+                                        id="api-key"
+                                        v-model="apiKey"
+                                        type="password"
+                                        placeholder="Enter your OpenRouter API key"
+                                        @blur="handleApiKeyUpdate"
+                                        class="api-key-input"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label>Select Model:</label>
+                                    <div class="model-list">
+                                        <div 
+                                            v-for="model in openrouterModels" 
+                                            :key="model.id"
+                                            class="model-item"
+                                            :class="{ active: model.id === currentModel }"
+                                            @click="handleModelChange(model.id)"
+                                        >
+                                            <div style="font-weight: bold;">{{ model.name }}</div>
+                                            <div style="font-size: 0.9rem; color: #666;">{{ model.description }}</div>
+                                            <div style="font-size: 0.8rem; color: #666;">
+                                                {{ model.pricing.prompt === 'Free' ? 'FREE' : model.pricing.prompt }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Blender MCP -->
+                            <div class="blender-mcp">
+                                <h3>Blender MCP Connection</h3>
+                                
+                                <div :class="{ connected: mcpConnected, disconnected: !mcpConnected }">
+                                    <span>{{ mcpConnected ? 'Connected to Blender' : 'Not Connected' }}</span>
+                                </div>
+
+                                <div v-if="!mcpConnected">
+                                    <label for="blender-path">Blender Executable Path:</label>
+                                    <input 
+                                        id="blender-path"
+                                        v-model="blenderPath"
+                                        type="text"
+                                        placeholder="C:\\Program Files\\Blender Foundation\\Blender 4.0\\blender.exe"
+                                        class="path-input"
+                                    />
+                                    <button 
+                                        @click="handleBlenderConnect"
+                                        :disabled="!blenderPath"
+                                        class="connect-button"
+                                    >
+                                        Connect to Blender
+                                    </button>
+                                </div>
+
+                                <div v-if="mcpConnected">
+                                    <button @click="handleBlenderDisconnect" class="connect-button" style="background: #dc3545;">
+                                        Disconnect from Blender
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-area">
+                            <div class="chat-interface">
+                                <div class="chat-header">
+                                    <h3>OpenRouter Chat</h3>
+                                    <div>
+                                        <span v-if="currentModelName" class="current-model">{{ currentModelName }}</span>
+                                        <span v-else class="no-model">No model selected</span>
+                                    </div>
+                                </div>
+
+                                <div class="messages-container">
+                                    <div v-if="messages.length === 0" style="text-align: center; color: #6c757d; padding: 2rem;">
+                                        <h4>Welcome to SoftSync!</h4>
+                                        <p>Start a conversation by typing a message below. You can ask me to help with Blender operations or general questions.</p>
+                                        <div style="margin-top: 1rem; text-align: left;">
+                                            <h5>Example prompts:</h5>
+                                            <ul style="list-style: none; padding: 0;">
+                                                <li>"Create a cube in Blender"</li>
+                                                <li>"How do I add materials to objects?"</li>
+                                                <li>"Explain the difference between Edit and Object mode"</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div 
+                                        v-for="(message, index) in messages" 
+                                        :key="index"
+                                        class="message"
+                                        :class="message.role"
+                                    >
+                                        <div class="message-header">
+                                            <span class="role">{{ message.role === 'user' ? 'You' : 'Assistant' }}</span>
+                                            <span class="timestamp">{{ message.timestamp.toLocaleTimeString() }}</span>
+                                        </div>
+                                        <div class="message-content">{{ message.content }}</div>
+                                    </div>
+
+                                    <div v-if="loading" style="text-align: center; padding: 1rem;">
+                                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                            <div class="spinner"></div>
+                                            <span>Thinking...</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="input-container">
+                                    <div class="input-wrapper">
+                                        <textarea
+                                            v-model="inputMessage"
+                                            @keydown="handleKeyDown"
+                                            placeholder="Type your message here..."
+                                            class="message-input"
+                                            rows="3"
+                                            :disabled="loading"
+                                        ></textarea>
+                                        <button 
+                                            @click="handleSendMessage"
+                                            :disabled="!inputMessage.trim() || loading"
+                                            class="send-button"
+                                        >
+                                            {{ loading ? 'Sending...' : 'Send' }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            `
+        }).mount('#app');
+    </script>
+</body>
+</html>
