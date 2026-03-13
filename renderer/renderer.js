@@ -1,9 +1,10 @@
-const information = document.getElementById('info')
-information.innerText = `This app is using Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), and Electron (v${versions.electron()})`
 
-const func = async () => {
-  const response = await window.versions.ping()
-  console.log(response) // prints out 'pong'
+const getUserResponse = async () => {
+  const prompt = "Hello, My name is Jia"
+  const res = await window.versions.getUserResponse(prompt)
+  const information = document.getElementById('info')
+  information.innerText = `User: ${prompt} | Gemini: ${res}`
 }
 
+getUserResponse()
 func()
