@@ -2,6 +2,7 @@
   "name": "softsync",
   "version": "1.0.0",
   "main": "process/main.js",
+  "type": "module",
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,5 +20,8 @@
   "description": "",
   "devDependencies": {
     "electron": "^41.0.2"
+  },
+  "dependencies": {
+    "@google/genai": "^1.45.0"
   }
 }
