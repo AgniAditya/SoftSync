@@ -1,0 +1,23 @@
+{
+  "name": "softsync",
+  "version": "1.0.0",
+  "main": "process/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgniAditya/SoftSync.git"
+  },
+  "author": "Aditya Agnihotri",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AgniAditya/SoftSync/issues"
+  },
+  "homepage": "https://github.com/AgniAditya/SoftSync#readme",
+  "description": "",
+  "devDependencies": {
+    "electron": "^41.0.2"
+  }
+}
