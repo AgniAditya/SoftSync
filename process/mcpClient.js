@@ -1,12 +1,17 @@
 import { env } from "./envVar.js";
 import queue from "./messageQueue/queue.js";
 import { Worker } from 'bullmq';
+import runRedisServer from "./messageQueue/redisServer.js";
 
 export default class MCPClient {
     static instructions;
 
     constructor(instructions) {
         this.instructions = instructions
+    }
+
+    async startRedisServer(){
+        await runRedisServer()
     }
 
     async addJobs() {
