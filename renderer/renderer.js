@@ -5,4 +5,11 @@ const getUserResponse = async () => {
   information.innerText = `User: ${prompt} | Gemini: ${res}`
 }
 
+const completeUserTask = async () => {
+  const prompt = "Hey schedule a meeting regarding the softsync project of 10 people only on 18-March-2026 at 3:00 pm"
+  const res = await window.versions.getUserTaskResponse(prompt)
+  console.log(res);
+}
+
+completeUserTask()
 getUserResponse()

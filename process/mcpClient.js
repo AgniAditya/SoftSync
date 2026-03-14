@@ -18,8 +18,8 @@ export default class MCPClient {
         for (let index = 0; index < this.instructions.length; index++) {
             const element = this.instructions[index];
             queue.add('job1', element);
-            console.log(`${element} added to the job queue.`)
         }
+        console.log(`Jobs added to the job queue.`)
     }
 
     async doJobs(){
@@ -33,5 +33,6 @@ export default class MCPClient {
           },
           { connection },
         );
+        console.log('All jobs completed')
     }
 }
